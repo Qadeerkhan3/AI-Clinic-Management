@@ -7,19 +7,10 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts';
+import StatCard from '../components/ui/StatCard';
 
 const COLORS     = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6'];
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-const StatBox = ({ label, value, icon, color }) => (
-  <div className="card flex items-center gap-4">
-    <div className={`p-3 rounded-xl text-2xl ${color}`}>{icon}</div>
-    <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-3xl font-bold text-gray-900">{value ?? '—'}</p>
-    </div>
-  </div>
-);
 
 export default function Analytics() {
   const { user }          = useAuth();
@@ -30,7 +21,7 @@ export default function Analytics() {
     const url = user.role === 'admin' ? '/analytics/admin' : '/analytics/doctor';
     api.get(url)
       .then(({ data }) => setStats(data.stats))
-      .catch(() => toast.error('Analytics load nahi hui'))
+      .catch(() => toast.error('Failed to load analytics data'))
       .finally(() => setLoading(false));
   }, [user.role]);
 
@@ -71,7 +62,7 @@ export default function Analytics() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
         <p className="text-gray-500 text-sm mt-1">
-          {user.role === 'admin' ? 'System-wide overview' : 'Aapki personal stats'}
+          {user.role === 'admin' ? 'System-wide overview' : 'Your personal statistics'}
         </p>
       </div>
 
@@ -80,10 +71,10 @@ export default function Analytics() {
         <>
           {/* Stat boxes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatBox label="Total Patients"      value={stats.totalPatients}      icon="👥" color="bg-blue-50"/>
-            <StatBox label="Total Doctors"       value={stats.totalDoctors}       icon="👨‍⚕️" color="bg-green-50"/>
-            <StatBox label="Total Appointments"  value={stats.totalAppointments}  icon="📅" color="bg-purple-50"/>
-            <StatBox label="Active Plan"         value="Pro"                      icon="⭐" color="bg-amber-50"/>
+            <StatCard title="Total Patients"      value={stats.totalPatients}      icon="👥" color="bg-blue-50" iconColor="text-blue-600"/>
+            <StatCard title="Total Doctors"       value={stats.totalDoctors}       icon="👨‍⚕️" color="bg-green-50" iconColor="text-green-600"/>
+            <StatCard title="Total Appointments"  value={stats.totalAppointments}  icon="📅" color="bg-purple-50" iconColor="text-purple-600"/>
+            <StatCard title="Active Plan"         value="Pro"                      icon="⭐" color="bg-amber-50" iconColor="text-amber-600"/>
           </div>
 
           {/* Monthly area chart */}
@@ -124,9 +115,14 @@ export default function Analytics() {
 
             {/* Weekly bar chart */}
             <div className="card">
-              <h2 className="text-base font-semibold text-gray-800 mb-5">
-                Weekly Patient Load
-              </h2>
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-base font-semibold text-gray-800">
+                  Weekly Patient Load
+                </h2>
+                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
+                  Sample Data
+                </span>
+              </div>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={weeklyData} barSize={32}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
@@ -145,9 +141,14 @@ export default function Analytics() {
 
             {/* Pie chart */}
             <div className="card">
-              <h2 className="text-base font-semibold text-gray-800 mb-5">
-                Appointment Status Breakdown
-              </h2>
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-base font-semibold text-gray-800">
+                  Appointment Status Breakdown
+                </h2>
+                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
+                  Sample Data
+                </span>
+              </div>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -248,16 +249,21 @@ export default function Analytics() {
       {user.role === 'doctor' && stats && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatBox label="Aaj ki Appointments" value={stats.todayCount}        icon="📅" color="bg-blue-50"/>
-            <StatBox label="Is Mahine"            value={stats.monthCount}        icon="📆" color="bg-green-50"/>
-            <StatBox label="Total Prescriptions"  value={stats.prescriptionCount} icon="💊" color="bg-purple-50"/>
+            <StatCard title="Today's Appointments" value={stats.todayCount}        icon="📅" color="bg-blue-50" iconColor="text-blue-600"/>
+            <StatCard title="This Month"            value={stats.monthCount}        icon="📆" color="bg-green-50" iconColor="text-green-600"/>
+            <StatCard title="Total Prescriptions"  value={stats.prescriptionCount} icon="💊" color="bg-purple-50" iconColor="text-purple-600"/>
           </div>
 
           {/* Weekly bar chart for doctor */}
           <div className="card">
-            <h2 className="text-base font-semibold text-gray-800 mb-5">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-base font-semibold text-gray-800">
                 Weekly Patient Load
-            </h2>
+              </h2>
+              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
+                Sample Data
+              </span>
+            </div>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={weeklyData} barSize={36}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>

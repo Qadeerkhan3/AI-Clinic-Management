@@ -37,7 +37,7 @@ export default function DoctorModal({ doctor, onClose, onSuccess }) {
     e.preventDefault();
     
     if (!doctor && !form.password) {
-      return toast.error('Password dalna zaroori hai');
+      return toast.error('Password is required');
     }
     
     setLoading(true);
@@ -50,7 +50,7 @@ export default function DoctorModal({ doctor, onClose, onSuccess }) {
           isActive: form.isActive,
           subscriptionPlan: form.subscriptionPlan,
         });
-        toast.success('Doctor update ho gaya');
+        toast.success('Doctor updated successfully');
       } else {
         // Add new doctor
         await api.post('/admin/doctors', {
@@ -59,11 +59,11 @@ export default function DoctorModal({ doctor, onClose, onSuccess }) {
           password: form.password,
           subscriptionPlan: form.subscriptionPlan,
         });
-        toast.success('Doctor add ho gaya');
+        toast.success('Doctor added successfully');
       }
       onSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error aa gaya');
+      toast.error(err.response?.data?.message || 'Failed to save doctor');
     } finally {
       setLoading(false);
     }

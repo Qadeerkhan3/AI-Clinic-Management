@@ -24,17 +24,17 @@ export default function PrescriptionModal({ patientId, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (medicines.some(m => !m.name || !m.dosage || !m.frequency || !m.duration)) {
-      return toast.error('Sab medicines ki details bharo');
+      return toast.error('Please fill in all medicine details');
     }
     setLoading(true);
     try {
       await api.post('/prescriptions', {
         patientId, diagnosis, instructions, followUpDate, medicines,
       });
-      toast.success('Prescription save ho gai!');
+      toast.success('Prescription saved successfully!');
       onSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error aa gaya');
+      toast.error(err.response?.data?.message || 'Failed to save prescription');
     } finally {
       setLoading(false);
     }
@@ -138,7 +138,7 @@ export default function PrescriptionModal({ patientId, onClose, onSuccess }) {
               </label>
               <textarea rows={2} value={instructions}
                 onChange={e => setInstructions(e.target.value)}
-                placeholder="Khane ke baad lein, pani zyada piyen..."
+                placeholder="Take after meals, drink plenty of water..."
                 className="input-field resize-none"/>
             </div>
             <div>

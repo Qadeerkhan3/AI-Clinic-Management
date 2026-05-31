@@ -6,7 +6,7 @@ export const useProGuard = () => {
 
   const checkPro = (callback) => {
     if (user?.subscriptionPlan !== 'pro') {
-      toast.error('Yeh feature Pro plan mein hai! Upgrade karein.');
+      toast.error('This feature is only available on the Pro plan. Please upgrade.');
       return false;
     }
     callback?.();

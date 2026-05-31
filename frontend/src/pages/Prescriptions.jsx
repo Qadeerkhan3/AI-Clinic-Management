@@ -15,19 +15,19 @@ export default function Prescriptions() {
   const [viewPrescription, setView]       = useState(null);
 
   useEffect(() => {
-    // Sirf staff patients list load kare
+    // Only staff loads the list of patients
     if (user.role !== 'patient') {
       api.get('/patients')
         .then(({ data }) => setPatients(data.patients || []))
         .catch(() => {}); // silent
     }
 
-    // Patient apni prescriptions seedha load kare
+    // Patient loads their own prescriptions directly
     if (user.role === 'patient') {
       setLoading(true);
       api.get('/patients/my-prescriptions')
         .then(({ data }) => setPrescriptions(data.prescriptions || []))
-        .catch(() => toast.error('Prescriptions load nahi huin'))
+        .catch(() => toast.error('Failed to load prescriptions'))
         .finally(() => setLoading(false));
     }
   }, [user.role]);
@@ -37,7 +37,7 @@ export default function Prescriptions() {
     setLoading(true);
     api.get(`/prescriptions/patient/${patientId}`)
       .then(({ data }) => setPrescriptions(data.prescriptions || []))
-      .catch(() => toast.error('Prescriptions load nahi huin'))
+      .catch(() => toast.error('Failed to load prescriptions'))
       .finally(() => setLoading(false));
   };
 

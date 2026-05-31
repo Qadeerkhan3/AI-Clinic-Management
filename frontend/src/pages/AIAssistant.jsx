@@ -26,19 +26,19 @@ export default function AIAssistant() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.symptoms.trim()) return toast.error('Symptoms zaroor bharo');
+    if (!form.symptoms.trim()) return toast.error('Symptoms are required');
     setLoading(true);
     setResult(null);
     try {
       const { data } = await api.post('/ai/symptom-check', form);
       if (data.fallback) {
-        toast.error('AI abhi available nahi, baad mein try karein');
+        toast.error('AI service is currently unavailable, please try again later');
       } else {
         setResult(data.data);
         toast.success('AI analysis complete!');
       }
     } catch {
-      toast.error('AI request fail ho gai');
+      toast.error('AI analysis request failed');
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export default function AIAssistant() {
               <textarea
                 name="symptoms" required rows={4}
                 value={form.symptoms} onChange={handleChange}
-                placeholder="e.g. Bukhaar 3 din se hai, sar dard, jism dard, bhookh nahi..."
+                placeholder="e.g. Fever for 3 days, headache, body aches, loss of appetite..."
                 className="input-field resize-none"
               />
             </div>
@@ -128,7 +128,7 @@ export default function AIAssistant() {
               <textarea
                 name="history" rows={3}
                 value={form.history} onChange={handleChange}
-                placeholder="e.g. Diabetes hai, BP ki dawa leta hai..."
+                placeholder="e.g. History of diabetes, takes medication for high blood pressure..."
                 className="input-field resize-none"
               />
             </div>

@@ -26,14 +26,14 @@ export default function PatientModal({ patient, onClose, onSuccess }) {
     try {
       if (patient) {
         await api.put(`/patients/${patient._id}`, form);
-        toast.success('Patient update ho gaya');
+        toast.success('Patient updated successfully');
       } else {
         await api.post('/patients', form);
-        toast.success('Patient add ho gaya');
+        toast.success('Patient added successfully');
       }
       onSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error aa gaya');
+      toast.error(err.response?.data?.message || 'Failed to save patient');
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export default function PatientModal({ patient, onClose, onSuccess }) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">
-            {patient ? 'Patient Edit Karein' : 'Naya Patient Add Karein'}
+            {patient ? 'Edit Patient' : 'Add New Patient'}
           </h2>
           <button
             onClick={onClose}

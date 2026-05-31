@@ -2,31 +2,39 @@ import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import ReceptionistModal from '../../components/admin/ReceptionistModal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function ManageReceptionists() {
   const [receptionists, setReceptionists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editReceptionist, setEditReceptionist] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
 
   const fetchReceptionists = () => {
     setLoading(true);
     api.get('/admin/receptionists')
       .then(({ data }) => setReceptionists(data.receptionists))
-      .catch(() => toast.error('Receptionists load nahi hue'))
+      .catch(() => toast.error('Failed to load receptionists'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchReceptionists(); }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Is receptionist ko delete karna hai?')) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      await api.delete(`/admin/receptionists/${id}`);
-      toast.success('Receptionist delete ho gaya');
+      await api.delete(`/admin/receptionists/${deleteId}`);
+      toast.success('Receptionist deleted successfully');
       fetchReceptionists();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete nahi hua');
+      toast.error(err.response?.data?.message || 'Failed to delete receptionist');
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -67,7 +75,7 @@ export default function ManageReceptionists() {
       ) : receptionists.length === 0 ? (
         <div className="card text-center py-16">
           <span className="text-5xl">👩‍💼</span>
-          <p className="text-gray-500 mt-4"> No receptionist Available </p>
+          <p className="text-gray-500 mt-4">No Receptionists Available</p>
           <button onClick={() => setShowModal(true)} className="btn-primary mt-4">
             Add First Receptionist
           </button>
@@ -126,6 +134,18 @@ export default function ManageReceptionists() {
           onSuccess={() => { fetchReceptionists(); handleModalClose(); }}
         />
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        title="Delete Receptionist"
+        message="Are you sure you want to delete this receptionist account? This action will permanently remove their access."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        type="danger"
+      />
     </div>
   );
 }

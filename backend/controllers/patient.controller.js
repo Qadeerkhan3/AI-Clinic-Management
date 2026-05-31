@@ -20,7 +20,7 @@ export const getPatientById = async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id)
       .populate('createdBy', 'name');
-    if (!patient) return res.status(404).json({ message: 'Patient nahi mila' });
+    if (!patient) return res.status(404).json({ message: 'Patient not found' });
     res.json({ success: true, patient });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -45,7 +45,7 @@ export const updatePatient = async (req, res) => {
     const patient = await Patient.findByIdAndUpdate(
       req.params.id, req.body, { new: true, runValidators: true }
     );
-    if (!patient) return res.status(404).json({ message: 'Patient nahi mila' });
+    if (!patient) return res.status(404).json({ message: 'Patient not found' });
     res.json({ success: true, patient });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -55,7 +55,7 @@ export const updatePatient = async (req, res) => {
 export const deletePatient = async (req, res) => {
   try {
     await Patient.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Patient delete ho gaya' });
+    res.json({ success: true, message: 'Patient deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -67,7 +67,7 @@ export const getMyProfile = async (req, res) => {
   try {
     let patient = await Patient.findOne({ email: req.user.email });
 
-    // Agar patient record nahi toh auto-create karo
+    // If patient record does not exist, auto-create it
     if (!patient) {
       patient = await Patient.create({
         name:      req.user.name,
@@ -95,16 +95,16 @@ export const getMyProfile = async (req, res) => {
   }
 };
 
-// ─── NEW: Patient apna profile update kare ────────────────────────
+// ─── NEW: Patient updates their profile ────────────────────────
 
 export const updateMyProfile = async (req, res) => {
   try {
     const { name, contact, age, gender, address, bloodGroup } = req.body;
 
-    // User name update karo
+    // Update user name
     await User.findByIdAndUpdate(req.user._id, { name });
 
-    // Patient record update ya create karo
+    // Update or create patient record
     const patient = await Patient.findOneAndUpdate(
       { email: req.user.email },
       { name, contact, age, gender, address, bloodGroup, email: req.user.email },
@@ -125,7 +125,7 @@ export const getMyAppointments = async (req, res) => {
     const patient = await Patient.findOne({ email: req.user.email });
 
     if (!patient) {
-      // Patient record nahi bana abhi tak — empty return karo
+      // Patient record does not exist yet — return empty array
       return res.json({ success: true, appointments: [] });
     }
 

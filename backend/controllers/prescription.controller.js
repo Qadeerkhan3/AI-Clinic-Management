@@ -44,7 +44,7 @@ export const getPrescriptionById = async (req, res) => {
       .populate('patientId', 'name age gender');
 
     if (!prescription)
-      return res.status(404).json({ message: 'Prescription nahi mili' });
+      return res.status(404).json({ message: 'Prescription not found' });
 
     res.json({ success: true, prescription });
   } catch (err) {
@@ -59,7 +59,7 @@ export const generatePrescriptionPDF = async (req, res) => {
       .populate('doctorId', 'name email')
       .populate('patientId', 'name age gender contact');
 
-    if (!rx) return res.status(404).json({ message: 'Prescription nahi mili' });
+    if (!rx) return res.status(404).json({ message: 'Prescription not found' });
 
     const doc = new PDFDocument({ margin: 50 });
     res.setHeader('Content-Type', 'application/pdf');

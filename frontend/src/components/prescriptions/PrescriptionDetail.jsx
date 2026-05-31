@@ -18,9 +18,9 @@ export default function PrescriptionDetail({ prescription: rx, onClose }) {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('PDF download ho rahi hai!');
+      toast.success('Downloading PDF...');
     } catch {
-      toast.error('PDF generate nahi hui');
+      toast.error('Failed to generate PDF');
     }
   };
 
@@ -34,7 +34,7 @@ export default function PrescriptionDetail({ prescription: rx, onClose }) {
       });
       setAiData(data.data);
     } catch {
-      toast.error('AI explanation nahi mili');
+      toast.error('Failed to get AI explanation');
     } finally {
       setAiLoading(false);
     }
@@ -149,7 +149,7 @@ export default function PrescriptionDetail({ prescription: rx, onClose }) {
                 font-medium rounded-lg transition-colors disabled:opacity-50
                 flex items-center justify-center gap-2"
             >
-              {aiLoading ? 'AI soch raha hai...' : '🤖 AI Explain'}
+              {aiLoading ? 'AI is thinking...' : '🤖 AI Explain'}
             </button>
           </div>
         </div>

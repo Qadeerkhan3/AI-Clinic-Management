@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import PatientModal from '../components/patients/PatientModal';
 import PatientCard  from '../components/patients/PatientCard';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function Patients() {
   const { user }                      = useAuth();
@@ -12,25 +13,32 @@ export default function Patients() {
   const [search, setSearch]           = useState('');
   const [showModal, setShowModal]     = useState(false);
   const [editPatient, setEditPatient] = useState(null);
+  const [deleteId, setDeleteId]       = useState(null);
 
   const fetchPatients = () => {
     setLoading(true);
     api.get('/patients')
       .then(({ data }) => setPatients(data.patients))
-      .catch(() => toast.error('Patients load nahi hue'))
+      .catch(() => toast.error('Failed to load patients'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchPatients(); }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Is patient ko delete karna chahte ho?')) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      await api.delete(`/patients/${id}`);
-      toast.success('Patient delete ho gaya');
+      await api.delete(`/patients/${deleteId}`);
+      toast.success('Patient deleted successfully');
       fetchPatients();
     } catch {
-      toast.error('Delete nahi hua');
+      toast.error('Failed to delete patient');
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -80,7 +88,7 @@ export default function Patients() {
         </svg>
         <input
           type="text"
-          placeholder="Name ya contact se search karein..."
+          placeholder="Search by name or contact..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="input-field pl-10"
@@ -95,7 +103,7 @@ export default function Patients() {
       ) : filtered.length === 0 ? (
         <div className="card text-center py-16">
           <span className="text-5xl">🔍</span>
-          <p className="text-gray-500 mt-4">Koi patient nahi mila</p>
+          <p className="text-gray-500 mt-4">No patients found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -119,6 +127,18 @@ export default function Patients() {
           onSuccess={() => { fetchPatients(); handleModalClose(); }}
         />
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        title="Delete Patient"
+        message="Are you sure you want to delete this patient record? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        type="danger"
+      />
     </div>
   );
 }

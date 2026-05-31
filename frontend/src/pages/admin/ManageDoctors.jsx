@@ -3,6 +3,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import DoctorModal from '../../components/admin/DoctorModal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function ManageDoctors() {
   const { user } = useAuth();
@@ -10,25 +11,32 @@ export default function ManageDoctors() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editDoctor, setEditDoctor] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
 
   const fetchDoctors = () => {
     setLoading(true);
     api.get('/admin/doctors')
       .then(({ data }) => setDoctors(data.doctors))
-      .catch(() => toast.error('Doctors load nahi hue'))
+      .catch(() => toast.error('Failed to load doctors'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchDoctors(); }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Is doctor ko delete karna hai?')) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      await api.delete(`/admin/doctors/${id}`);
-      toast.success('Doctor delete ho gaya');
+      await api.delete(`/admin/doctors/${deleteId}`);
+      toast.success('Doctor deleted successfully');
       fetchDoctors();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete nahi hua');
+      toast.error(err.response?.data?.message || 'Failed to delete doctor');
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -69,7 +77,7 @@ export default function ManageDoctors() {
       ) : doctors.length === 0 ? (
         <div className="card text-center py-16">
           <span className="text-5xl">👨‍⚕️</span>
-          <p className="text-gray-500 mt-4">No Docter Available</p>
+          <p className="text-gray-500 mt-4">No Doctors Available</p>
           <button onClick={() => setShowModal(true)} className="btn-primary mt-4">
             Add First Doctor
           </button>
@@ -128,6 +136,18 @@ export default function ManageDoctors() {
           onSuccess={() => { fetchDoctors(); handleModalClose(); }}
         />
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        title="Delete Doctor"
+        message="Are you sure you want to delete this doctor account? This action will permanently remove their records from the system."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        type="danger"
+      />
     </div>
   );
 }

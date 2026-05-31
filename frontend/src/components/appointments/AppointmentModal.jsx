@@ -22,13 +22,13 @@ export default function AppointmentModal({ onClose, onSuccess }) {
   const [loading, setLoading]       = useState(false);
 
   useEffect(() => {
-    // Doctors sab ke liye load karo
+    // Load doctors for everyone
     api.get('/auth/doctors')
       .then(({ data }) => setDoctors(data.doctors || []))
-      .catch(() => toast.error('Doctors load nahi hue'));
+      .catch(() => toast.error('Failed to load doctors'));
 
     if (user.role === 'patient') {
-      // Patient apna record load kare
+      // Patient loads their own profile record
       api.get('/patients/profile/me')
         .then(({ data }) => {
           const pid = data.patient?._id;
@@ -36,18 +36,18 @@ export default function AppointmentModal({ onClose, onSuccess }) {
             setMyPatientId(pid);
             setForm(prev => ({ ...prev, patientId: pid }));
           } else {
-            toast.error('Profile complete karein pehle');
+            toast.error('Please complete your profile first');
           }
         })
         .catch((err) => {
           console.error('Profile error:', err);
-          toast.error('Profile load nahi hua');
+          toast.error('Failed to load profile');
         });
     } else {
       // Staff ke liye patients list
       api.get('/patients')
         .then(({ data }) => setPatients(data.patients || []))
-        .catch(() => toast.error('Patients load nahi hue'));
+        .catch(() => toast.error('Failed to load patients'));
     }
   }, [user.role]);
 
@@ -58,11 +58,11 @@ export default function AppointmentModal({ onClose, onSuccess }) {
     e.preventDefault();
 
     if (!form.patientId) {
-      toast.error('Patient ID missing — pehle profile complete karein');
+      toast.error('Patient ID missing — please complete your profile first');
       return;
     }
     if (!form.doctorId) {
-      toast.error('Doctor select karein');
+      toast.error('Please select a doctor');
       return;
     }
 
@@ -118,7 +118,7 @@ export default function AppointmentModal({ onClose, onSuccess }) {
               <p className="font-semibold text-gray-900 mt-0.5">{user.name}</p>
               {!myPatientId && (
                 <p className="text-xs text-red-500 mt-1">
-                  Pehle Profile page mein apni info save karein
+                  Please save your information on the Profile page first
                 </p>
               )}
             </div>

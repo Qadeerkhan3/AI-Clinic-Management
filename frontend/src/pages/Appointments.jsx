@@ -27,7 +27,7 @@ export default function Appointments() {
     setLoading(true);
     api.get('/appointments')
       .then(({ data }) => setAppts(data.appointments))
-      .catch(() => toast.error('Appointments load nahi huin'))
+      .catch(() => toast.error('Failed to load appointments'))
       .finally(() => setLoading(false));
   };
 
@@ -36,10 +36,10 @@ export default function Appointments() {
   const handleStatusUpdate = async (id, status) => {
     try {
       await api.put(`/appointments/${id}/status`, { status });
-      toast.success(`Status update ho gaya: ${status}`);
+      toast.success(`Status updated to ${status}`);
       fetchAppts();
     } catch {
-      toast.error('Status update nahi hua');
+      toast.error('Failed to update appointment status');
     }
   };
 
@@ -91,7 +91,7 @@ export default function Appointments() {
       ) : filtered.length === 0 ? (
         <div className="card text-center py-16">
           <span className="text-5xl">📅</span>
-          <p className="text-gray-500 mt-4">There is No  appointment</p>
+          <p className="text-gray-500 mt-4">No appointments found</p>
         </div>
       ) : (
         <div className="card p-0 overflow-hidden">

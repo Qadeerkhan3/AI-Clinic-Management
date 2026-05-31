@@ -45,9 +45,9 @@ export default function PatientProfile() {
                 bloodGroup: data.patient?.bloodGroup || '',
             });
         } catch (err) {
-            toast.error('Profile load nahi hua');
+            toast.error('Failed to load profile');
         } finally {
-            setLoading(false); // ← yeh bhi add karo
+            setLoading(false);
         }
     };
 
@@ -56,7 +56,7 @@ export default function PatientProfile() {
             const { data } = await api.get('/patients/my-appointments');
             setAppointments(data.appointments);
         } catch (err) {
-            toast.error('Appointments load nahi huin');
+            toast.error('Failed to load appointments');
         }
     };
 
@@ -65,7 +65,7 @@ export default function PatientProfile() {
             const { data } = await api.get('/patients/my-prescriptions');
             setPrescriptions(data.prescriptions);
         } catch (err) {
-            toast.error('Prescriptions load nahi huin');
+            toast.error('Failed to load prescriptions');
         }
     };
 
@@ -74,11 +74,11 @@ export default function PatientProfile() {
         setLoading(true);
         try {
             await api.put('/patients/profile', form);
-            toast.success('Profile update ho gaya');
+            toast.success('Profile updated successfully');
             setEditing(false);
             fetchProfile();
         } catch (err) {
-            toast.error('Update fail ho gaya');
+            toast.error('Failed to update profile');
         } finally {
             setLoading(false);
         }
@@ -96,9 +96,9 @@ export default function PatientProfile() {
             document.body.appendChild(link);
             link.click();
             link.remove();
-            toast.success('PDF download ho rahi hai!');
+            toast.success('Downloading PDF...');
         } catch {
-            toast.error('PDF generate nahi hui');
+            toast.error('Failed to generate PDF');
         }
     };
 
@@ -213,7 +213,7 @@ export default function PatientProfile() {
             <div className="card">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">📅 My Appointments</h2>
                 {appointments.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">There is no appointment</p>
+                    <p className="text-gray-500 text-center py-8">No appointments found</p>
                 ) : (
                     <div className="space-y-3">
                         {appointments.map((apt) => (
@@ -237,7 +237,7 @@ export default function PatientProfile() {
             <div className="card">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">💊 My Prescriptions</h2>
                 {prescriptions.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">There is No  prescription </p>
+                    <p className="text-gray-500 text-center py-8">No prescriptions found</p>
                 ) : (
                     <div className="space-y-3">
                         {prescriptions.map((rx) => (

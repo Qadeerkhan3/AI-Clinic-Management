@@ -37,7 +37,7 @@ export default function ReceptionistModal({ receptionist, onClose, onSuccess }) 
     e.preventDefault();
     
     if (!receptionist && !form.password) {
-      return toast.error('Password dalna zaroori hai');
+      return toast.error('Password is required');
     }
     
     setLoading(true);
@@ -49,7 +49,7 @@ export default function ReceptionistModal({ receptionist, onClose, onSuccess }) 
           isActive: form.isActive,
           subscriptionPlan: form.subscriptionPlan,
         });
-        toast.success('Receptionist update ho gaya');
+        toast.success('Receptionist updated successfully');
       } else {
         await api.post('/admin/receptionists', {
           name: form.name,
@@ -57,11 +57,11 @@ export default function ReceptionistModal({ receptionist, onClose, onSuccess }) 
           password: form.password,
           subscriptionPlan: form.subscriptionPlan,
         });
-        toast.success('Receptionist add ho gaya');
+        toast.success('Receptionist added successfully');
       }
       onSuccess();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error aa gaya');
+      toast.error(err.response?.data?.message || 'Failed to save receptionist');
     } finally {
       setLoading(false);
     }

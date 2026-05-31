@@ -6,19 +6,13 @@ export const getAppointments = async (req, res) => {
     let filter = {};
 
     if (req.user.role === 'doctor') {
-      // Doctor sirf apni appointments dekhe
       filter.doctorId = req.user._id;
-
     } else if (req.user.role === 'patient') {
-      // Patient apni appointments dhundho via email
       const patient = await Patient.findOne({ email: req.user.email });
       if (!patient) return res.json({ success: true, appointments: [] });
       filter.patientId = patient._id;
-
-    } else if (req.user.role === 'receptionist') {
-      // Receptionist sab dekhe — no filter
     }
-    // Admin ko bhi sab dikhta hai — no filter
+    // receptionist and admin see all appointments (no filter)
 
     const appointments = await Appointment.find(filter)
       .populate('patientId', 'name age gender contact')
@@ -36,17 +30,14 @@ export const bookAppointment = async (req, res) => {
   try {
     const { patientId, doctorId, date, timeSlot, notes } = req.body;
 
-    // Empty string check — pehle validate karo
-    if (!patientId || patientId === '') {
-      return res.status(400).json({
-        message: 'Patient ID missing hai — pehle patient profile complete karein'
-      });
+    if (!patientId) {
+      return res.status(400).json({ message: 'Patient ID is required. Please complete the patient profile first.' });
     }
-    if (!doctorId || doctorId === '') {
-      return res.status(400).json({ message: 'Doctor select karein' });
+    if (!doctorId) {
+      return res.status(400).json({ message: 'Please select a doctor.' });
     }
     if (!date || !timeSlot) {
-      return res.status(400).json({ message: 'Date aur time slot zaroor hai' });
+      return res.status(400).json({ message: 'Date and time slot are required.' });
     }
 
     // Conflict check
@@ -58,7 +49,7 @@ export const bookAppointment = async (req, res) => {
     });
 
     if (conflict) {
-      return res.status(400).json({ message: 'Yeh slot already booked hai' });
+      return res.status(400).json({ message: 'This time slot is already booked. Please choose a different slot.' });
     }
 
     const appointment = await Appointment.create({
@@ -88,7 +79,7 @@ export const updateStatus = async (req, res) => {
     const allowed = ['pending', 'confirmed', 'completed', 'cancelled'];
 
     if (!allowed.includes(status)) {
-      return res.status(400).json({ message: 'Status galat hai' });
+      return res.status(400).json({ message: 'Invalid status value.' });
     }
 
     const appointment = await Appointment.findByIdAndUpdate(
@@ -98,7 +89,7 @@ export const updateStatus = async (req, res) => {
     ).populate('patientId', 'name').populate('doctorId', 'name');
 
     if (!appointment) {
-      return res.status(404).json({ message: 'Appointment nahi mili' });
+      return res.status(404).json({ message: 'Appointment not found.' });
     }
 
     res.json({ success: true, appointment });

@@ -9,80 +9,78 @@ export const symptomChecker = async (req, res) => {
     const { symptoms, age, gender, history } = req.body;
 
     const prompt = `
-      Tum ek medical assistant ho. Neeche patient ki info hai:
+      You are a medical assistant. Here is the patient information:
       Age: ${age}, Gender: ${gender}
       Symptoms: ${symptoms}
       Medical History: ${history || 'None'}
 
-      Yeh batao (JSON format mein):
+      Respond with ONLY valid JSON in this exact format:
       {
         "possibleConditions": ["condition1", "condition2"],
-        "riskLevel": "low/medium/high",
+        "riskLevel": "low|medium|high",
         "suggestedTests": ["test1", "test2"],
-        "urgency": "routine/urgent/emergency",
-        "advice": "short advice"
+        "urgency": "routine|urgent|emergency",
+        "advice": "brief advice in one or two sentences"
       }
-      Sirf JSON return karo, kuch aur mat likho.
     `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model  = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const text   = result.response.text();
 
-    // JSON parse safely
-    const cleaned = text.replace(/```json|```/g, '').trim();
+    const cleaned    = text.replace(/```json|```/g, '').trim();
     const aiResponse = JSON.parse(cleaned);
 
-    // Log save karo
     await DiagnosisLog.create({
       symptoms, age, gender, history,
       aiResponse,
-      riskLevel: aiResponse.riskLevel,
-      createdBy: req.user._id,
+      riskLevel:  aiResponse.riskLevel,
+      createdBy:  req.user._id,
     });
 
     res.json({ success: true, data: aiResponse });
   } catch (err) {
-    // Graceful fallback — AI fail ho toh bhi system kaam kare
+    console.error('AI symptomChecker error:', err.message);
     res.json({
-      success: false,
+      success:  false,
       fallback: true,
-      message: 'AI abhi available nahi, doctor se consult karein',
+      message:  'AI analysis is temporarily unavailable. Please consult your doctor.',
     });
   }
 };
 
-// Feature 2: Prescription Explain karo patient ke liye
+// Feature 2: Prescription Explanation for patients
 export const prescriptionExplain = async (req, res) => {
   try {
     const { medicines, diagnosis, instructions } = req.body;
 
     const prompt = `
-      Tum ek friendly medical assistant ho jo patient ko simple Urdu/English mein samjhata hai.
+      You are a friendly medical assistant explaining a prescription to a patient in simple English.
       Diagnosis: ${diagnosis}
       Medicines: ${JSON.stringify(medicines)}
       Instructions: ${instructions}
 
-      Yeh batao (JSON mein):
+      Respond with ONLY valid JSON in this exact format:
       {
-        "simpleExplanation": "patient ke liye simple words mein",
+        "simpleExplanation": "what the patient needs to know in plain language",
         "lifestyleAdvice": ["advice1", "advice2"],
         "preventiveTips": ["tip1", "tip2"],
-        "sideEffectsWarning": "common side effects"
+        "sideEffectsWarning": "common side effects to watch for"
       }
     `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model  = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const text   = result.response.text();
     const cleaned = text.replace(/```json|```/g, '').trim();
 
     res.json({ success: true, data: JSON.parse(cleaned) });
-  } catch {
+  } catch (err) {
+    console.error('AI prescriptionExplain error:', err.message);
     res.json({
-      success: false,
+      success:  false,
       fallback: true,
-      message: 'Explanation abhi available nahi',
+      message:  'Explanation is temporarily unavailable.',
     });
   }
 };
